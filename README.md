@@ -1,4 +1,4 @@
-# Sistema de Organização de Materiais - Milhagem
+# Sistema de Organização de Materiais 
 
 Este é um aplicativo desenvolvido para a equipe de competição Milhagem da UFMG, com o objetivo de organizar materiais e equipamentos. O sistema permite o gerenciamento de setores, caixas e itens, além de registrar as ações dos usuários.
 
