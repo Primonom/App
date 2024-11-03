@@ -57,7 +57,8 @@ class App:
         usuario_id = usuario.verificar_login(username, senha)
         if usuario_id:
             self.usuario_atual = usuario_id
-            self.log_acoes.logar_acao(usuario_id, "Login realizado")
+            # Corrigido: usar `registrar_acao` em vez de `logar_acao`
+            self.log_acoes.registrar_acao(usuario_id, "login", "Login realizado")
             self.mostrar_menu_principal()
         else:
             messagebox.showerror("Erro", "Usuário ou senha inválidos")
@@ -73,7 +74,8 @@ class App:
         if nome:
             setor = Setor()
             setor.adicionar_setor(nome)
-            self.log_acoes.logar_acao(self.usuario_atual, f"Setor '{nome}' adicionado")
+            # Corrigido: usar `registrar_acao` em vez de `logar_acao`
+            self.log_acoes.registrar_acao(self.usuario_atual, "adicionar setor", f"Setor '{nome}' adicionado")
 
     def visualizar_setores(self):
         setores = Setor.consultar_setores()

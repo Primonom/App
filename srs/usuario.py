@@ -23,24 +23,20 @@ class Usuario:
         conn.close()
 
     def verificar_login(self, username, senha):
-        """
-        Verifica se o username e senha estão corretos.
-        :param username: O nome de usuário fornecido pelo usuário
-        :param senha: A senha fornecida pelo usuário (será criptografada)
-        :return: O ID do usuário se as credenciais estiverem corretas, None caso contrário.
-        """
-        senha_hash = sha256(senha.encode()).hexdigest()  # Criptografa a senha com SHA-256
-
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute('SELECT id FROM usuarios WHERE username = ? AND senha = ?', (username, senha_hash))
+        conexao = sqlite3.connect('sistema_organizacao.db')
+        cursor = conexao.cursor()
+        
+        # Verifica o usuário e a senha no banco
+        cursor.execute("SELECT id FROM usuarios WHERE username = ? AND senha = ?", (username, senha))
         resultado = cursor.fetchone()
-        conn.close()
-
+        
+        conexao.close()
+        
         if resultado:
-            return resultado[0]  # Retorna o ID do usuário se as credenciais forem válidas
-        return None
-
+            return resultado[0]  # Retorna o ID do usuário
+        else:
+            return None
+        
     def adicionar_usuario(self, username, senha):
         """
         Adiciona um novo usuário ao banco de dados com username e senha criptografada.

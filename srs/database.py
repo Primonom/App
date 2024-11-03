@@ -57,7 +57,19 @@ def inserir_usuarios_padrao(cursor):
         except sqlite3.IntegrityError:
             # Se o usuário já existir, ignore o erro
             print(f"O usuário '{username}' já existe.")
-
+def verificar_usuarios():
+    conexao = sqlite3.connect('sistema_organizacao.db')
+    cursor = conexao.cursor()
+    
+    cursor.execute("SELECT * FROM usuarios")
+    usuarios = cursor.fetchall()
+    
+    print("Usuários cadastrados:")
+    for usuario in usuarios:
+        print(usuario)
+    
+    conexao.close()
 # Chama a função para inicializar o banco de dados se este arquivo for executado diretamente
 if __name__ == "__main__":
     inicializar_banco()
+    verificar_usuarios()

@@ -6,24 +6,35 @@ class LogAcoes:
         self.db_path = db_path
         self.criar_tabela_log()
 
+    def conectar_banco(self):
+        """
+        Conecta ao banco de dados e retorna a conexão e o cursor.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        return conn, cursor
+
     def criar_tabela_log(self):
         """
         Cria a tabela de log no banco de dados caso ainda não exista.
         """
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS log_acoes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER,
-                acao TEXT NOT NULL,
-                descricao TEXT,
-                data_hora TEXT NOT NULL,
-                FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
-            )
-        ''')
-        conn.commit()
-        conn.close()
+        conn, cursor = self.conectar_banco()
+        try:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS log_acoes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    usuario_id INTEGER,
+                    acao TEXT NOT NULL,
+                    descricao TEXT,
+                    data_hora TEXT NOT NULL,
+                    FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
+                )
+            ''')
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Erro ao criar tabela de log: {e}")
+        finally:
+            conn.close()
 
     def registrar_acao(self, usuario_id, acao, descricao=""):
         """
@@ -33,15 +44,18 @@ class LogAcoes:
         :param descricao: Descrição adicional sobre a ação.
         """
         data_hora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO log_acoes (usuario_id, acao, descricao, data_hora)
-            VALUES (?, ?, ?, ?)
-        ''', (usuario_id, acao, descricao, data_hora))
-        conn.commit()
-        conn.close()
-        print(f"Ação '{acao}' registrada com sucesso para o usuário ID {usuario_id}.")
+        conn, cursor = self.conectar_banco()
+        try:
+            cursor.execute('''
+                INSERT INTO log_acoes (usuario_id, acao, descricao, data_hora)
+                VALUES (?, ?, ?, ?)
+            ''', (usuario_id, acao, descricao, data_hora))
+            conn.commit()
+            print(f"Ação '{acao}' registrada com sucesso para o usuário ID {usuario_id}.")
+        except sqlite3.Error as e:
+            print(f"Erro ao registrar ação: {e}")
+        finally:
+            conn.close()
 
     def listar_acoes_por_usuario(self, usuario_id):
         """
@@ -49,24 +63,32 @@ class LogAcoes:
         :param usuario_id: ID do usuário cujas ações serão listadas.
         :return: Lista de ações do usuário.
         """
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute('SELECT acao, descricao, data_hora FROM log_acoes WHERE usuario_id = ?', (usuario_id,))
-        acoes = cursor.fetchall()
-        conn.close()
-        return acoes
+        conn, cursor = self.conectar_banco()
+        try:
+            cursor.execute('SELECT acao, descricao, data_hora FROM log_acoes WHERE usuario_id = ?', (usuario_id,))
+            acoes = cursor.fetchall()
+            return acoes
+        except sqlite3.Error as e:
+            print(f"Erro ao listar ações do usuário {usuario_id}: {e}")
+            return []
+        finally:
+            conn.close()
 
     def listar_todas_acoes(self):
         """
         Lista todas as ações registradas no log.
         :return: Lista de todas as ações.
         """
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute('SELECT usuario_id, acao, descricao, data_hora FROM log_acoes')
-        acoes = cursor.fetchall()
-        conn.close()
-        return acoes
+        conn, cursor = self.conectar_banco()
+        try:
+            cursor.execute('SELECT usuario_id, acao, descricao, data_hora FROM log_acoes')
+            acoes = cursor.fetchall()
+            return acoes
+        except sqlite3.Error as e:
+            print(f"Erro ao listar todas as ações: {e}")
+            return []
+        finally:
+            conn.close()
 
 # Exemplo de uso para testar a classe
 if __name__ == "__main__":
