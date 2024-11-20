@@ -3,7 +3,24 @@ import sqlite3
 class Caixa:
     def __init__(self, db_path="database.db"):
         self.db_path = db_path
+        self.criar_tabela_caixas()
         self.criar_tabela_itens()
+
+    def criar_tabela_caixas(self):
+            """
+            Cria a tabela de caixas no banco de dados caso ainda não exista.
+            """
+            # Parte alterada no código #
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS caixas (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nome TEXT NOT NULL UNIQUE
+                )
+            ''')
+            conn.commit()
+            conn.close()
 
     def criar_tabela_itens(self):
         """
@@ -23,6 +40,22 @@ class Caixa:
         conn.commit()
         conn.close()
 
+    def adicionar_caixa(self, nome_caixa):
+        """
+        Adiciona uma nova caixa ao banco de dados.
+        :param nome_caixa: Nome da caixa.
+        """
+        # Parte alterada no código #
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute('INSERT INTO caixas (nome) VALUES (?)', (nome_caixa,))
+            conn.commit()
+            print(f"Caixa '{nome_caixa}' adicionada com sucesso.")
+        except sqlite3.IntegrityError:
+            print(f"Erro: Caixa '{nome_caixa}' já existe.")
+        conn.close()
+    
     def adicionar_item(self, nome_item, quantidade, nome_caixa):
         """
         Adiciona um novo item a uma caixa específica.
@@ -63,6 +96,19 @@ class Caixa:
             print(f"Erro: Caixa '{nome_caixa}' não encontrada.")
         conn.close()
 
+    def listar_caixas(self):
+        """
+        Lista todas as caixas disponíveis no banco de dados.
+        :return: Lista de nomes de caixas.
+        """
+        # Parte alterada no código #
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT nome FROM caixas')
+        caixas = [row[0] for row in cursor.fetchall()]
+        conn.close()
+        return caixas
+    
     def listar_itens_por_caixa(self, nome_caixa):
         """
         Retorna uma lista de todos os itens armazenados em uma caixa específica.
@@ -105,9 +151,15 @@ class Caixa:
             print(f"Erro: Caixa '{nome_caixa}' não encontrada.")
         conn.close()
 
-# Exemplo de uso para adicionar e listar itens em uma caixa, apenas para testes.
+# Exemplo de uso para adicionar e listar caixas e itens, apenas para testes.
 if __name__ == "__main__":
     caixa = Caixa()
+    
+    caixa.adicionar_caixa("Ferramentas")
+    caixa.adicionar_caixa("Documentos")
+    caixas = caixa.listar_caixas()
+    print("Caixas disponíveis:", caixas)
+    
     caixa.adicionar_item("Parafuso", 100, "Ferramentas")
     caixa.atualizar_quantidade_item("Parafuso", "Ferramentas", 120)
     itens = caixa.listar_itens_por_caixa("Ferramentas")

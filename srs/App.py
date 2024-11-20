@@ -83,11 +83,10 @@ class App:
 
     def adicionar_caixa(self):
         nome = simpledialog.askstring("Adicionar Caixa", "Nome da caixa:")
-        setor_id = simpledialog.askinteger("Setor", "ID do setor:")
-        if nome and setor_id:
+        if nome:
             caixa = Caixa()
-            caixa.adicionar_caixa(nome, setor_id)
-            self.log_acoes.logar_acao(self.usuario_atual, f"Caixa '{nome}' adicionada ao setor {setor_id}")
+            caixa.adicionar_caixa(nome)
+            self.log_acoes.logar_acao(self.usuario_atual, f"Caixa '{nome}' adicionada.")
 
     def visualizar_caixas(self):
         caixas = Caixa.consultar_caixas()
