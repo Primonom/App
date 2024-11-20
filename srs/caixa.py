@@ -99,15 +99,20 @@ class Caixa:
     def listar_caixas(self):
         """
         Lista todas as caixas disponíveis no banco de dados.
-        :return: Lista de nomes de caixas.
+        :return: Lista de tuplas contendo as caixas (id, nome, setor_id).
         """
-        # Parte alterada no código #
+        
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute('SELECT nome FROM caixas')
-        caixas = [row[0] for row in cursor.fetchall()]
-        conn.close()
-        return caixas
+        try:
+            cursor.execute('SELECT id, nome, setor_id FROM caixas')
+            caixas = cursor.fetchall()
+            return caixas
+        except sqlite3.Error as e:
+            print(f"Erro ao listar caixas: {e}")
+            return []
+        finally:
+            conn.close()
     
     def listar_itens_por_caixa(self, nome_caixa):
         """

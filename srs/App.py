@@ -78,19 +78,82 @@ class App:
             self.log_acoes.registrar_acao(self.usuario_atual, "adicionar setor", f"Setor '{nome}' adicionado")
 
     def visualizar_setores(self):
-        setores = Setor.consultar_setores()
-        messagebox.showinfo("Setores", "\n".join([setor.nome for setor in setores]))
+        setor = Setor()
+        setores = setor.listar_setores()
+        if not setores:
+            messagebox.showinfo("Setores", "Nenhum setor encontrado.")
+            return
+        
+        quadro_setores = tk.Toplevel(self.root)
+        quadro_setores.title("Setores Existentes")
+        quadro_setores.geometry("400x300")
+
+        tk.Label(quadro_setores, text="Setores Cadastrados", font=("Arial", 14, "bold")).pack(pady=10)
+
+        colunas = ("ID", "Nome")
+        tree = ttk.Treeview(quadro_setores, columns=colunas, show="headings", height=10)
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        tree.heading("ID", text="ID")
+        tree.heading("Nome", text="Nome")
+        tree.column("ID", width=50, anchor="center")
+        tree.column("Nome", width=150, anchor="center")
+
+        for setor in setores:
+            tree.insert("", "end", values=(setor[0], setor[1]))
+
+        tk.Button(quadro_setores, text="Fechar", command=quadro_setores.destroy).pack(pady=10)
 
     def adicionar_caixa(self):
         nome = simpledialog.askstring("Adicionar Caixa", "Nome da caixa:")
         if nome:
             caixa = Caixa()
             caixa.adicionar_caixa(nome)
-            self.log_acoes.logar_acao(self.usuario_atual, f"Caixa '{nome}' adicionada.")
+            self.log_acoes.registrar_acao(self.usuario_atual, f"Caixa '{nome}' adicionada.")
+            self.mostrar_quadro_caixa(nome)
+            
+    def mostrar_quadro_caixa(self, nome_caixa):
+        """
+        Exibe um quadro com o nome da nova caixa criada.
+        :param nome_caixa: Nome da caixa adicionada.
+        """
+        quadro_caixa = tk.Toplevel(self.root)
+        quadro_caixa.title("Nova Caixa Adicionada")
+        quadro_caixa.geometry("300x150")
+
+        tk.Label(quadro_caixa, text="Caixa criada com sucesso!", font=("Arial", 14, "bold")).pack(pady=10)
+        tk.Label(quadro_caixa, text=f"Nome da Caixa: {nome_caixa}", font=("Arial", 12)).pack(pady=5)
+
+        tk.Button(quadro_caixa, text="Fechar", command=quadro_caixa.destroy).pack(pady=10)
 
     def visualizar_caixas(self):
-        caixas = Caixa.consultar_caixas()
-        messagebox.showinfo("Caixas", "\n".join([caixa.nome for caixa in caixas]))
+        caixa = Caixa() # Criação de instância da classe Caixa
+        caixas = caixa.listar_caixas()
+        if not caixas:
+            messagebox.showinfo("Caixas", "Nenhuma caixa encontrada.")
+            return
+
+        quadro_caixas = tk.Toplevel(self.root)
+        quadro_caixas.title("Caixas Existentes")
+        quadro_caixas.geometry("400x300")
+
+        tk.Label(quadro_caixas, text="Caixas Criadas", font=("Arial", 14, "bold")).pack(pady=10)
+
+        colunas = ("ID", "Nome", "Setor")
+        tree = ttk.Treeview(quadro_caixas, columns=colunas, show="headings", height=10)
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        tree.heading("ID", text="ID")
+        tree.heading("Nome", text="Nome")
+        tree.heading("Setor", text="Setor")
+        tree.column("ID", width=50, anchor="center")
+        tree.column("Nome", width=150, anchor="center")
+        tree.column("Setor", width=150, anchor="center")
+
+        for caixa in caixas:
+            tree.insert("", "end", values=(caixa[0], caixa[1], caixa[2]))
+
+        tk.Button(quadro_caixas, text="Fechar", command=quadro_caixas.destroy).pack(pady=10)
 
     def adicionar_item(self):
         nome = simpledialog.askstring("Adicionar Item", "Nome do item:")
