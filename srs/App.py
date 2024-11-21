@@ -7,6 +7,8 @@ from caixa import Caixa
 from item import Item
 from log_acoes import LogAcoes
 from tkinter import simpledialog
+import sqlite3
+
 
 class App:
     def __init__(self, root):
@@ -74,8 +76,22 @@ class App:
         if nome:
             setor = Setor()
             setor.adicionar_setor(nome)
-            # Corrigido: usar `registrar_acao` em vez de `logar_acao`
             self.log_acoes.registrar_acao(self.usuario_atual, "adicionar setor", f"Setor '{nome}' adicionado")
+            self.mostrar_quadro_setor(nome)
+            
+    def mostrar_quadro_setor(self, nome_setor):
+        """
+        Exibe um quadro com o nome do novo setor criado.
+        :param nome_setor: Nome do setor adicionado.
+        """
+        quadro_setor = tk.Toplevel(self.root)
+        quadro_setor.title("Novo Setor Adicionado")
+        quadro_setor.geometry("300x150")
+
+        tk.Label(quadro_setor, text="Setor criado com sucesso!", font=("Arial", 14, "bold")).pack(pady=10)
+        tk.Label(quadro_setor, text=f"Nome do Setor: {nome_setor}", font=("Arial", 12)).pack(pady=5)
+
+        tk.Button(quadro_setor, text="Fechar", command=quadro_setor.destroy).pack(pady=10)
 
     def visualizar_setores(self):
         setor = Setor()
@@ -106,11 +122,14 @@ class App:
 
     def adicionar_caixa(self):
         nome = simpledialog.askstring("Adicionar Caixa", "Nome da caixa:")
-        if nome:
+        setor_id = simpledialog.askinteger("Adicionar Caixa", "ID do Setor ao qual a caixa pertence:")            
+        
+        
+        if nome and setor_id:
             caixa = Caixa()
-            caixa.adicionar_caixa(nome)
-            self.log_acoes.registrar_acao(self.usuario_atual, f"Caixa '{nome}' adicionada.")
-            self.mostrar_quadro_caixa(nome)
+            caixa.adicionar_caixa(nome, setor_id)
+            self.log_acoes.registrar_acao(self.usuario_atual, "adicionar caixa", f"Caixa '{nome}' adicionada no setor '{setor_id}'")
+            self.mostrar_quadro_caixa(nome, setor_id)
             
     def mostrar_quadro_caixa(self, nome_caixa):
         """
@@ -127,15 +146,15 @@ class App:
         tk.Button(quadro_caixa, text="Fechar", command=quadro_caixa.destroy).pack(pady=10)
 
     def visualizar_caixas(self):
-        caixa = Caixa() # Criação de instância da classe Caixa
-        caixas = caixa.listar_caixas()
+        caixa = Caixa()
+        caixas = caixa.listar_caixas_com_setores()
         if not caixas:
             messagebox.showinfo("Caixas", "Nenhuma caixa encontrada.")
             return
 
         quadro_caixas = tk.Toplevel(self.root)
         quadro_caixas.title("Caixas Existentes")
-        quadro_caixas.geometry("400x300")
+        quadro_caixas.geometry("500x400")
 
         tk.Label(quadro_caixas, text="Caixas Criadas", font=("Arial", 14, "bold")).pack(pady=10)
 
@@ -157,17 +176,68 @@ class App:
 
     def adicionar_item(self):
         nome = simpledialog.askstring("Adicionar Item", "Nome do item:")
-        tipo = simpledialog.askstring("Tipo do Item", "Tipo do item:")
+        quantidade = simpledialog.askstring("Tipo do Item", "Tipo do item:")
         serial_number = simpledialog.askstring("Serial Number", "Número serial:")
         caixa_id = simpledialog.askinteger("Caixa", "ID da caixa:")
-        if nome and tipo and serial_number and caixa_id:
-            item = Item()
-            item.adicionar_item(nome, tipo, serial_number, caixa_id)
-            self.log_acoes.logar_acao(self.usuario_atual, f"Item '{nome}' adicionado à caixa {caixa_id}")
+        
+        if nome and quantidade and serial_number and caixa_id:
+            item = Item(nome, quantidade, caixa_id)
+            item.salvar()
+            self.log_acoes.registrar_acao(self.usuario_atual, "adicionar item", f"Item '{nome}' adicionado à caixa {caixa_id}")
+            self.mostrar_quadro_item(nome, quantidade, serial_number, caixa_id)
+
+    def mostrar_quadro_item(self, nome_item, quantidade_item, serial_number, caixa_id):
+        """
+        Exibe um quadro com os detalhes do novo item criado.
+        :param nome_item: Nome do item adicionado.
+        :param quantidade_item: Quantidade do item adicionado.
+        :param serial_number: Número serial do item.
+        :param caixa_id: ID da caixa onde o item foi adicionado.
+        """
+        quadro_item = tk.Toplevel(self.root)
+        quadro_item.title("Novo Item Adicionado")
+        quadro_item.geometry("300x200")
+
+        tk.Label(quadro_item, text="Item criado com sucesso!", font=("Arial", 14, "bold")).pack(pady=10)
+        tk.Label(quadro_item, text=f"Nome: {nome_item}", font=("Arial", 12)).pack(pady=5)
+        tk.Label(quadro_item, text=f"Tipo: {quantidade_item}", font=("Arial", 12)).pack(pady=5)
+        tk.Label(quadro_item, text=f"Serial: {serial_number}", font=("Arial", 12)).pack(pady=5)
+        tk.Label(quadro_item, text=f"Caixa ID: {caixa_id}", font=("Arial", 12)).pack(pady=5)
+
+        tk.Button(quadro_item, text="Fechar", command=quadro_item.destroy).pack(pady=10)
 
     def visualizar_itens(self):
-        itens = Item.consultar_itens()
-        messagebox.showinfo("Itens", "\n".join([item.nome for item in itens]))
+        item = Item
+        itens = item.listar_todos_itens()
+        
+        if not itens:
+            messagebox.showinfo("Itens", "Nenhum item encontrado.")
+            return
+        
+        quadro_itens = tk.Toplevel(self.root)
+        quadro_itens.title("Itens Existentes")
+        quadro_itens.geometry("500x400")
+
+        tk.Label(quadro_itens, text="Itens Cadastrados", font=("Arial", 14, "bold")).pack(pady=10)
+
+        colunas = ("ID", "Nome", "Quantidade", "Caixa ID")
+        tree = ttk.Treeview(quadro_itens, columns=colunas, show="headings", height=10)
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        tree.heading("ID", text="ID")
+        tree.heading("Nome", text="Nome")
+        tree.heading("Quantidade", text="Quantidade")
+        tree.heading("Caixa ID", text="Caixa ID")
+
+        tree.column("ID", width=50, anchor="center")
+        tree.column("Nome", width=150, anchor="center")
+        tree.column("Quantidade", width=100, anchor="center")
+        tree.column("Caixa ID", width=100, anchor="center")
+
+        for item in itens:
+            tree.insert("", "end", values=(item[0], item[1], item[2], item[3]))
+
+        tk.Button(quadro_itens, text="Fechar", command=quadro_itens.destroy).pack(pady=10)
 
 if __name__ == "__main__":
     root = tk.Tk()

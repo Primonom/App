@@ -63,6 +63,20 @@ class Item:
         print(f"Item '{self.nome}' removido da caixa com ID '{self.caixa_id}'.")
 
     @staticmethod
+    def listar_todos_itens(db_path="database.db"):
+        """
+        Lista todos os itens armazenados no banco de dados.
+        :param db_path: Caminho para o banco de dados (default: "database.db")
+        :return: Lista de itens com suas respectivas informações.
+        """
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, nome, quantidade, caixa_id FROM itens')
+        itens = cursor.fetchall()
+        conn.close()
+        return itens
+
+    @staticmethod
     def listar_itens_por_caixa(caixa_id, db_path="database.db"):
         """
         Lista todos os itens de uma caixa específica.

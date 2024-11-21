@@ -22,6 +22,23 @@ class Caixa:
             conn.commit()
             conn.close()
 
+    def listar_caixas_com_setores(self):
+        """
+        Lista todas as caixas juntamente com o nome dos setores associados.
+        :return: Lista de caixas com ID, nome da caixa e nome do setor.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        query = '''
+            SELECT caixas.id, caixas.nome, setores.nome 
+            FROM caixas 
+            JOIN setores ON caixas.setor_id = setores.id
+        '''
+        cursor.execute(query)
+        caixas = cursor.fetchall()
+        conn.close()
+        return caixas
+
     def criar_tabela_itens(self):
         """
         Cria a tabela de itens no banco de dados caso ainda não exista.
@@ -40,21 +57,21 @@ class Caixa:
         conn.commit()
         conn.close()
 
-    def adicionar_caixa(self, nome_caixa):
+    def adicionar_caixa(self, nome, setor_id):
         """
-        Adiciona uma nova caixa ao banco de dados.
+        Adiciona uma nova caixa com o nome e setor fornecidos ao banco de dados.
         :param nome_caixa: Nome da caixa.
+        :param setor_id: ID do setor ao qual a caixa pertence.
+
         """
-        # Parte alterada no código #
+        
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        try:
-            cursor.execute('INSERT INTO caixas (nome) VALUES (?)', (nome_caixa,))
-            conn.commit()
-            print(f"Caixa '{nome_caixa}' adicionada com sucesso.")
-        except sqlite3.IntegrityError:
-            print(f"Erro: Caixa '{nome_caixa}' já existe.")
+        cursor.execute('INSERT INTO caixas (nome, setor_id) VALUES (?, ?)', (nome, setor_id))
+        conn.commit()
         conn.close()
+        print(f"Caixa '{nome}' adicionada no setor ID '{setor_id}'.")
+
     
     def adicionar_item(self, nome_item, quantidade, nome_caixa):
         """
