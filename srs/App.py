@@ -58,6 +58,8 @@ class App:
         self.main_menu.entryconfig("Caixas", state="disabled")
         self.main_menu.entryconfig("Itens", state="disabled")
         
+        self.conta_menu = None
+        
         # Log de Ações
         self.log_acoes = LogAcoes()
 
@@ -81,6 +83,44 @@ class App:
         self.main_menu.entryconfig("Caixas", state="normal")
         self.main_menu.entryconfig("Itens", state="normal")
 
+        self.conta_menu = tk.Menubutton(self.root, text="Minha conta", relief=tk.RAISED)
+        self.conta_menu.place(relx=0.05, rely=0.05, anchor="nw")
+
+        conta_opcoes = tk.Menu(self.conta_menu, tearoff=0)
+        conta_opcoes.add_command(label="Editar Conta")
+        conta_opcoes.add_command(label="Sair", command=self.sair)
+        conta_opcoes.add_separator()
+        conta_opcoes.add_command(label="Excluir Conta", command=self.confirmar_exclusao, foreground="red")
+        self.conta_menu["menu"] = conta_opcoes
+
+    def confirmar_exclusao(self):
+        resposta = messagebox.askyesno("Excluir Conta", "Tem certeza que deseja excluir sua conta?")
+        if resposta:
+            self.excluir_conta()
+
+    def excluir_conta(self):
+        conexao = sqlite3.connect('sistema_organizacao.db')
+        cursor = conexao.cursor()
+
+        try:
+            cursor.execute("DELETE FROM usuarios WHERE id = ?", (self.usuario_atual,))
+            conexao.commit()
+            messagebox.showinfo("Sucesso", "Conta excluída com sucesso.")
+            self.sair()
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao excluir conta: {e}")
+        finally:
+            conexao.close()
+
+    def sair(self):
+        self.usuario_atual = None
+        self.main_menu.entryconfig("Setores", state="disabled")
+        self.main_menu.entryconfig("Caixas", state="disabled")
+        self.main_menu.entryconfig("Itens", state="disabled")
+        if self.conta_menu:
+            self.conta_menu.place_forget()
+        self.login_frame.pack(expand=True)
+    
     def criar_conta(self):
         self.login_frame.pack_forget()
 
