@@ -18,17 +18,20 @@ class App:
 
         # Interface de Login
         self.login_frame = tk.Frame(self.root)
-        self.login_frame.pack()
+        self.login_frame.pack(expand=True)
         
-        tk.Label(self.login_frame, text="Username").grid(row=0, column=0)
-        self.username_entry = tk.Entry(self.login_frame)
-        self.username_entry.grid(row=0, column=1)
+        self.inner_frame = tk.Frame(self.login_frame)
+        self.inner_frame.pack()
         
-        tk.Label(self.login_frame, text="Senha").grid(row=1, column=0)
-        self.senha_entry = tk.Entry(self.login_frame, show="*")
-        self.senha_entry.grid(row=1, column=1)
+        tk.Label(self.inner_frame, text="Username", font=("Arial", 14)).pack(pady=10, padx=10)
+        self.username_entry = tk.Entry(self.inner_frame, font=("Arial", 14), width=30)
+        self.username_entry.pack(pady=10, padx=10)
         
-        tk.Button(self.login_frame, text="Entrar", command=self.login).grid(row=2, column=0, columnspan=2)
+        tk.Label(self.inner_frame, text="Senha", font=("Arial", 14)).pack(pady=10, padx=10)
+        self.senha_entry = tk.Entry(self.inner_frame, show="*", font=("Arial", 14), width=30)
+        self.senha_entry.pack(pady=10, padx=10)
+        
+        tk.Button(self.login_frame, text="Entrar", font=("Arial", 14), command=self.login).pack(pady=20)
         
         # Menu principal (oculto até o login)
         self.main_menu = tk.Menu(self.root)
@@ -131,7 +134,7 @@ class App:
             self.log_acoes.registrar_acao(self.usuario_atual, "adicionar caixa", f"Caixa '{nome}' adicionada no setor '{setor_id}'")
             self.mostrar_quadro_caixa(nome, setor_id)
             
-    def mostrar_quadro_caixa(self, nome_caixa):
+    def mostrar_quadro_caixa(self, nome_caixa, setor_id):
         """
         Exibe um quadro com o nome da nova caixa criada.
         :param nome_caixa: Nome da caixa adicionada.
@@ -241,5 +244,6 @@ class App:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.state('zoomed')
     app = App(root)
     root.mainloop()
