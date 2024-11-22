@@ -33,6 +33,9 @@ class App:
         
         tk.Button(self.login_frame, text="Entrar", font=("Arial", 14), command=self.login).pack(pady=20)
         
+        tk.Button(self.login_frame, text="Criar nova conta", font=("Arial", 14), command=self.criar_conta).pack(pady=10)
+
+        
         # Menu principal (oculto até o login)
         self.main_menu = tk.Menu(self.root)
         self.root.config(menu=self.main_menu)
@@ -50,6 +53,10 @@ class App:
         self.main_menu.add_cascade(label="Itens", menu=self.item_menu)
         self.item_menu.add_command(label="Adicionar Item", command=self.adicionar_item)
         self.item_menu.add_command(label="Visualizar Itens", command=self.visualizar_itens)
+        
+        self.main_menu.entryconfig("Setores", state="disabled")
+        self.main_menu.entryconfig("Caixas", state="disabled")
+        self.main_menu.entryconfig("Itens", state="disabled")
         
         # Log de Ações
         self.log_acoes = LogAcoes()
@@ -73,6 +80,70 @@ class App:
         self.main_menu.entryconfig("Setores", state="normal")
         self.main_menu.entryconfig("Caixas", state="normal")
         self.main_menu.entryconfig("Itens", state="normal")
+
+    def criar_conta(self):
+        self.login_frame.pack_forget()
+
+        self.criar_conta_frame = tk.Frame(self.root)
+        self.criar_conta_frame.pack(expand=True, fill="both")
+
+        self.inner_frame_criar_conta = tk.Frame(self.criar_conta_frame)
+        self.inner_frame_criar_conta.place(relx=0.5, rely=0.5, anchor="center")
+
+        tk.Label(self.inner_frame_criar_conta, text="Novo Usuário", font=("Arial", 14)).pack(pady=10)
+
+        self.novo_username_entry = tk.Entry(self.inner_frame_criar_conta, font=("Arial", 14), width=30)
+        self.novo_username_entry.pack(pady=10)
+
+        tk.Label(self.inner_frame_criar_conta, text="Nova Senha", font=("Arial", 14)).pack(pady=10)
+        self.nova_senha_entry = tk.Entry(self.inner_frame_criar_conta, show="*", font=("Arial", 14), width=30)
+        self.nova_senha_entry.pack(pady=10)
+
+        tk.Button(self.inner_frame_criar_conta, text="Criar Conta", font=("Arial", 14), command=self.salvar_novo_usuario).pack(pady=10)
+
+        tk.Button(self.inner_frame_criar_conta, text="Voltar", font=("Arial", 12), command=self.voltar_para_login).pack(pady=10)
+
+    def voltar_para_login(self):
+        self.criar_conta_frame.pack_forget()
+
+        self.login_frame.pack(expand=True)
+    
+    def salvar_novo_usuario(self):
+        novo_username = self.novo_username_entry.get()
+        nova_senha = self.nova_senha_entry.get()
+
+        if novo_username and nova_senha:
+            if self.verificar_usuario_existente(novo_username):
+                messagebox.showerror("Erro", "O nome de usuário já existe.")
+            else:
+                self.adicionar_usuario_db(novo_username, nova_senha)
+                messagebox.showinfo("Sucesso", "Conta criada com sucesso!")
+                self.login_frame.pack(expand=True)
+                self.criar_conta_frame.pack_forget()
+        else:
+            messagebox.showerror("Erro", "Preencha todos os campos.")
+
+    def verificar_usuario_existente(self, username):
+        conexao = sqlite3.connect('sistema_organizacao.db')
+        cursor = conexao.cursor()
+        
+        cursor.execute("SELECT 1 FROM usuarios WHERE username = ?", (username,))
+        existe = cursor.fetchone() is not None
+        
+        conexao.close()
+        
+        return existe
+
+    def adicionar_usuario_db(self, username, senha):
+        conexao = sqlite3.connect('sistema_organizacao.db')
+        cursor = conexao.cursor()
+        try:
+            cursor.execute("INSERT INTO usuarios (username, senha) VALUES (?, ?)", (username, senha))
+            conexao.commit()
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Erro", "O nome de usuário já existe.")
+        finally:
+            conexao.close()
 
     def adicionar_setor(self):
         nome = simpledialog.askstring("Adicionar Setor", "Nome do setor:")
