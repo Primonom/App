@@ -54,14 +54,30 @@ class App:
         self.item_menu.add_command(label="Adicionar Item", command=self.adicionar_item)
         self.item_menu.add_command(label="Visualizar Itens", command=self.visualizar_itens)
         
+        self.main_menu.add_separator()  # Adiciona uma linha separadora
+        self.main_menu.add_command(label="Histórico", command=self.mostrar_historico)
+        
         self.main_menu.entryconfig("Setores", state="disabled")
         self.main_menu.entryconfig("Caixas", state="disabled")
         self.main_menu.entryconfig("Itens", state="disabled")
-        
+        self.main_menu.entryconfig("Histórico", state="disabled")
+
         self.conta_menu = None
         
         # Log de Ações
         self.log_acoes = LogAcoes()
+        
+    def mostrar_historico(self):
+        try:
+            log = LogAcoes()
+            acoes = log.listar_todas_acoes()
+            if not acoes:
+                messagebox.showinfo("Histórico de Ações", "Nenhuma ação registrada.")
+            else:
+                historico_texto = "\n".join([f"Usuário {usuario_id}: {acao} ({descricao}) em {data_hora}" for usuario_id, acao, descricao, data_hora in acoes])
+                messagebox.showinfo("Histórico de Ações", historico_texto)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao carregar histórico: {str(e)}")
 
     def login(self):
         username = self.username_entry.get()
@@ -82,6 +98,8 @@ class App:
         self.main_menu.entryconfig("Setores", state="normal")
         self.main_menu.entryconfig("Caixas", state="normal")
         self.main_menu.entryconfig("Itens", state="normal")
+        self.main_menu.entryconfig("Histórico", state="normal")
+
 
         self.conta_menu = tk.Menubutton(self.root, text="Minha conta", relief=tk.RAISED)
         self.conta_menu.place(relx=0.05, rely=0.05, anchor="nw")
