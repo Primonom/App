@@ -1,7 +1,7 @@
 import sqlite3
 
 class Item:
-    def __init__(self, nome, quantidade, serial_number, caixa_id):
+    def __init__(self, nome=None, quantidade=None, serial_number=None, caixa_id=None):
         self.nome = nome
         self.quantidade = quantidade
         self.serial_number = serial_number
@@ -15,12 +15,16 @@ class Item:
             CREATE TABLE IF NOT EXISTS itens (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
-                quantidade TEXT NOT NULL,
+                quantidade INTEGER NOT NULL,
                 serial_number TEXT NOT NULL,
-                caixa_id INTEGER,
+                caixa_id INTEGER NOT NULL,
                 FOREIGN KEY (caixa_id) REFERENCES caixas (id)
             )
         ''')
+        self.conexao.commit()
+
+    def excluir_tabela(self):
+        self.cursor.execute('DROP TABLE IF EXISTS itens')
         self.conexao.commit()
 
     def salvar(self):
@@ -38,3 +42,14 @@ class Item:
 
     def __del__(self):
         self.conexao.close()
+
+# Função para recriar a tabela 'itens'
+def recriar_tabela_itens():
+    item = Item()
+    item.excluir_tabela()
+    item.criar_tabela()
+
+# Execute a função para recriar a tabela 'itens' se necessário
+if __name__ == "__main__":
+    recriar_tabela_itens()
+    print("Tabela 'itens' recriada com sucesso.")

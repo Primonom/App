@@ -1,12 +1,12 @@
-from tkinter import ttk, messagebox
 import tkinter as tk
+from tkinter import ttk, messagebox
 from itens.item import Item
 
 def visualizar_itens(app):
     itens = Item.listar_todos_itens()
     
     if not itens:
-        messagebox.showinfo("Itens", "Nenhum item encontrado.")
+        messagebox.showinfo("Itens", "Nenhum item cadastrado.")
         return
     
     quadro_itens = tk.Toplevel(app.root)
@@ -19,19 +19,9 @@ def visualizar_itens(app):
     tree = ttk.Treeview(quadro_itens, columns=colunas, show="headings", height=10)
     tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-    tree.heading("ID", text="ID")
-    tree.heading("Nome", text="Nome")
-    tree.heading("Quantidade", text="Quantidade")
-    tree.heading("Serial Number", text="Serial Number")
-    tree.heading("Caixa ID", text="Caixa ID")
-
-    tree.column("ID", width=50, anchor="center")
-    tree.column("Nome", width=150, anchor="center")
-    tree.column("Quantidade", width=100, anchor="center")
-    tree.column("Serial Number", width=150, anchor="center")
-    tree.column("Caixa ID", width=100, anchor="center")
+    for col in colunas:
+        tree.heading(col, text=col)
+        tree.column(col, width=100)
 
     for item in itens:
-        tree.insert("", "end", values=(item[0], item[1], item[2], item[3], item[4]))
-
-    ttk.Button(quadro_itens, text="Fechar", command=quadro_itens.destroy).pack(pady=10)
+        tree.insert("", "end", values=item)
