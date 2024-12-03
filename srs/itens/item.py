@@ -32,24 +32,16 @@ class Item:
         self.conexao.commit()
 
     @staticmethod
-    def listar_todos_itens():
+    def listar_todos_itens(caixa_id=None):
         conexao = sqlite3.connect('sistema_organizacao.db')
         cursor = conexao.cursor()
-        cursor.execute('SELECT * FROM itens')
+        if caixa_id:
+            cursor.execute('SELECT * FROM itens WHERE caixa_id = ?', (caixa_id,))
+        else:
+            cursor.execute('SELECT * FROM itens')
         itens = cursor.fetchall()
         conexao.close()
         return itens
 
     def __del__(self):
         self.conexao.close()
-
-# Função para recriar a tabela 'itens'
-def recriar_tabela_itens():
-    item = Item()
-    item.excluir_tabela()
-    item.criar_tabela()
-
-# Execute a função para recriar a tabela 'itens' se necessário
-if __name__ == "__main__":
-    recriar_tabela_itens()
-    print("Tabela 'itens' recriada com sucesso.")

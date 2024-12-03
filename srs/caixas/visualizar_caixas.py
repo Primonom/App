@@ -1,32 +1,22 @@
-from tkinter import ttk, messagebox
 import tkinter as tk
+from tkinter import ttk, messagebox
 from caixas.caixa import Caixa
 
-def visualizar_caixas(app):
+def visualizar_caixas(app, setor_id=None):
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     caixa = Caixa()
-    caixas = caixa.listar_caixas_com_setores()
+    caixas = caixa.listar_caixas_com_setores(setor_id)
     if not caixas:
-        messagebox.showinfo("Caixas", "Nenhuma caixa encontrada.")
+        messagebox.showinfo("Caixas", "Nenhuma caixa cadastrada.")
         return
 
-    quadro_caixas = tk.Toplevel(app.root)
-    quadro_caixas.title("Caixas Existentes")
-    quadro_caixas.geometry("500x400")
+    ttk.Label(app.content_frame, text="Caixas", font=("Arial", 14, "bold")).pack(pady=10)
 
-    ttk.Label(quadro_caixas, text="Caixas Criadas", font=("Arial", 14, "bold")).pack(pady=10)
+    frame = ttk.Frame(app.content_frame)
+    frame.pack(pady=10)
 
-    colunas = ("ID", "Nome", "Setor")
-    tree = ttk.Treeview(quadro_caixas, columns=colunas, show="headings", height=10)
-    tree.pack(fill="both", expand=True, padx=10, pady=10)
-
-    tree.heading("ID", text="ID")
-    tree.heading("Nome", text="Nome")
-    tree.heading("Setor", text="Setor")
-    tree.column("ID", width=50, anchor="center")
-    tree.column("Nome", width=150, anchor="center")
-    tree.column("Setor", width=150, anchor="center")
-
-    for caixa in caixas:
-        tree.insert("", "end", values=(caixa[0], caixa[1], caixa[2]))
-
-    ttk.Button(quadro_caixas, text="Fechar", command=quadro_caixas.destroy).pack(pady=10)
+    for i, caixa in enumerate(caixas):
+        button = ttk.Button(frame, text=caixa[1], command=lambda c=caixa: visualizar_itens(app, c[0]))
+        button.grid(row=i // 2, column=i % 2, padx=10, pady=10)

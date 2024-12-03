@@ -1,30 +1,22 @@
-from tkinter import ttk, messagebox
 import tkinter as tk
+from tkinter import ttk, messagebox
 from setores.setor import Setor
 
 def visualizar_setores(app):
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     setor = Setor()
     setores = setor.listar_setores()
     if not setores:
-        messagebox.showinfo("Setores", "Nenhum setor encontrado.")
+        messagebox.showinfo("Setores", "Nenhum setor cadastrado.")
         return
-    
-    quadro_setores = tk.Toplevel(app.root)
-    quadro_setores.title("Setores Existentes")
-    quadro_setores.geometry("400x300")
 
-    ttk.Label(quadro_setores, text="Setores Cadastrados", font=("Arial", 14, "bold")).pack(pady=10)
+    ttk.Label(app.content_frame, text="Setores", font=("Arial", 14, "bold")).pack(pady=10)
 
-    colunas = ("ID", "Nome")
-    tree = ttk.Treeview(quadro_setores, columns=colunas, show="headings", height=10)
-    tree.pack(fill="both", expand=True, padx=10, pady=10)
+    frame = ttk.Frame(app.content_frame)
+    frame.pack(pady=10)
 
-    tree.heading("ID", text="ID")
-    tree.heading("Nome", text="Nome")
-    tree.column("ID", width=50, anchor="center")
-    tree.column("Nome", width=150, anchor="center")
-
-    for setor in setores:
-        tree.insert("", "end", values=(setor[0], setor[1]))
-
-    ttk.Button(quadro_setores, text="Fechar", command=quadro_setores.destroy).pack(pady=10)
+    for i, setor in enumerate(setores):
+        button = ttk.Button(frame, text=setor[1], command=lambda s=setor: visualizar_caixas(app, s[0]))
+        button.grid(row=i // 2, column=i % 2, padx=10, pady=10)

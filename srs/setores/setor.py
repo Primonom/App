@@ -21,7 +21,8 @@ class Setor:
 
     def listar_setores(self):
         self.cursor.execute('SELECT * FROM setores')
-        return self.cursor.fetchall()
+        setores = self.cursor.fetchall()
+        return setores
 
     def __del__(self):
         self.conexao.close()
