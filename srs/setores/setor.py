@@ -1,10 +1,7 @@
-import sqlite3
+from database import DatabaseModel
 
-class Setor:
-    def __init__(self):
-        self.conexao = sqlite3.connect('sistema_organizacao.db')
-        self.cursor = self.conexao.cursor()
-        self.criar_tabela()
+class Setor(DatabaseModel):
+    table_name = 'setores'
 
     def criar_tabela(self):
         self.cursor.execute('''
@@ -16,13 +13,7 @@ class Setor:
         self.conexao.commit()
 
     def adicionar_setor(self, nome):
-        self.cursor.execute('INSERT INTO setores (nome) VALUES (?)', (nome,))
-        self.conexao.commit()
+        self.salvar('INSERT INTO setores (nome) VALUES (?)', (nome,))
 
     def listar_setores(self):
-        self.cursor.execute('SELECT * FROM setores')
-        setores = self.cursor.fetchall()
-        return setores
-
-    def __del__(self):
-        self.conexao.close()
+        return self.listar_todos('SELECT * FROM setores')

@@ -9,14 +9,6 @@ class LogAcoes:
 
     def criar_tabela(self):
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS log_acoes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER,
-                acao TEXT NOT NULL,
-                descricao TEXT,
-                data_hora TEXT NOT NULL,
-                FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
-            )
         ''')
         self.conexao.commit()
 

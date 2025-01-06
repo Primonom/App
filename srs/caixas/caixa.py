@@ -1,10 +1,7 @@
-import sqlite3
+from database import DatabaseModel
 
-class Caixa:
-    def __init__(self):
-        self.conexao = sqlite3.connect('sistema_organizacao.db')
-        self.cursor = self.conexao.cursor()
-        self.criar_tabela()
+class Caixa(DatabaseModel):
+    table_name = 'caixas'
 
     def criar_tabela(self):
         self.cursor.execute('''
@@ -18,16 +15,10 @@ class Caixa:
         self.conexao.commit()
 
     def adicionar_caixa(self, nome, setor_id):
-        self.cursor.execute('INSERT INTO caixas (nome, setor_id) VALUES (?, ?)', (nome, setor_id))
-        self.conexao.commit()
+        self.salvar('INSERT INTO caixas (nome, setor_id) VALUES (?, ?)', (nome, setor_id))
 
     def listar_caixas_com_setores(self, setor_id=None):
         if setor_id:
-            self.cursor.execute('SELECT * FROM caixas WHERE setor_id = ?', (setor_id,))
+            return self.listar_todos('SELECT * FROM caixas WHERE setor_id = ?', (setor_id,))
         else:
-            self.cursor.execute('SELECT * FROM caixas')
-        caixas = self.cursor.fetchall()
-        return caixas
-
-    def __del__(self):
-        self.conexao.close()
+            return self.listar_todos('SELECT * FROM caixas')

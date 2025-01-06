@@ -6,13 +6,14 @@ def visualizar_itens(app, caixa_id=None):
     for widget in app.content_frame.winfo_children():
         widget.destroy()
 
-    itens = Item.listar_todos_itens(caixa_id)
+    item = Item()
+    itens = item.listar_itens(caixa_id)
     
     if not itens:
         messagebox.showinfo("Itens", "Nenhum item cadastrado.")
         return
     
-    ttk.Label(app.content_frame, text="Itens", font=("Arial", 14, "bold")).pack(pady=10)
+    ttk.Label(app.content_frame, text="Itens", font=("Arial", 16, "bold")).pack(pady=20)
 
     colunas = ("ID", "Nome", "Quantidade", "Serial Number", "Caixa ID")
     tree = ttk.Treeview(app.content_frame, columns=colunas, show="headings", height=10)
@@ -24,3 +25,5 @@ def visualizar_itens(app, caixa_id=None):
 
     for item in itens:
         tree.insert("", "end", values=item)
+
+    app.history.append(lambda: visualizar_itens(app, caixa_id))  # Adicionar ao histórico

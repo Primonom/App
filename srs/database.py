@@ -1,75 +1,27 @@
 import sqlite3
+from abc import ABC, abstractmethod
 
-def inicializar_banco():
-    # Conectar ao banco de dados
-    conexao = sqlite3.connect('sistema_organizacao.db')
-    cursor = conexao.cursor()
+class DatabaseModel(ABC):
+    def __init__(self):
+        self.conexao = sqlite3.connect('sistema_organizacao.db')
+        self.cursor = self.conexao.cursor()
+        self.criar_tabela()
 
-    # Criar tabelas
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        senha TEXT
-    )
-    ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS setores (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT UNIQUE
-    )
-    ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS caixas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        setor_id INTEGER,
-        FOREIGN KEY (setor_id) REFERENCES setores(id)
-    )
-    ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS itens (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        tipo TEXT,
-        serial_number TEXT UNIQUE,
-        caixa_id INTEGER,
-        FOREIGN KEY (caixa_id) REFERENCES caixas(id)
-    )
-    ''')
+    @abstractmethod
+    def criar_tabela(self):
+        pass
 
-    # Inserir usuários padrão
-    inserir_usuarios_padrao(cursor)
+    def excluir_tabela(self):
+        self.cursor.execute(f'DROP TABLE IF EXISTS {self.table_name}')
+        self.conexao.commit()
 
-    # Salvar (commit) as mudanças e fechar a conexão
-    conexao.commit()
-    conexao.close()
+    def salvar(self, query, params):
+        self.cursor.execute(query, params)
+        self.conexao.commit()
 
-def inserir_usuarios_padrao(cursor):
-    usuarios = [
-        ('pablo', '1234'),
-        ('gabriel', '1234'),
-        ('luis', '1234')
-    ]
-    for username, senha in usuarios:
-        try:
-            cursor.execute("INSERT INTO usuarios (username, senha) VALUES (?, ?)", (username, senha))
-        except sqlite3.IntegrityError:
-            # Se o usuário já existir, ignore o erro
-            print(f"O usuário '{username}' já existe.")
-def verificar_usuarios():
-    conexao = sqlite3.connect('sistema_organizacao.db')
-    cursor = conexao.cursor()
-    
-    cursor.execute("SELECT * FROM usuarios")
-    usuarios = cursor.fetchall()
-    
-    print("Usuários cadastrados:")
-    for usuario in usuarios:
-        print(usuario)
-    
-    conexao.close()
-# Chama a função para inicializar o banco de dados se este arquivo for executado diretamente
-if __name__ == "__main__":
-    inicializar_banco()
-    verificar_usuarios()
+    def listar_todos(self, query, params=()):
+        self.cursor.execute(query, params)
+        return self.cursor.fetchall()
+
+    def __del__(self):
+        self.conexao.close()

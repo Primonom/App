@@ -1,14 +1,7 @@
-import sqlite3
+from database import DatabaseModel
 
-class Item:
-    def __init__(self, nome=None, quantidade=None, serial_number=None, caixa_id=None):
-        self.nome = nome
-        self.quantidade = quantidade
-        self.serial_number = serial_number
-        self.caixa_id = caixa_id
-        self.conexao = sqlite3.connect('sistema_organizacao.db')
-        self.cursor = self.conexao.cursor()
-        self.criar_tabela()
+class Item(DatabaseModel):
+    table_name = 'itens'
 
     def criar_tabela(self):
         self.cursor.execute('''
@@ -23,25 +16,11 @@ class Item:
         ''')
         self.conexao.commit()
 
-    def excluir_tabela(self):
-        self.cursor.execute('DROP TABLE IF EXISTS itens')
-        self.conexao.commit()
+    def adicionar_item(self, nome, quantidade, serial_number, caixa_id):
+        self.salvar('INSERT INTO itens (nome, quantidade, serial_number, caixa_id) VALUES (?, ?, ?, ?)', (nome, quantidade, serial_number, caixa_id))
 
-    def salvar(self):
-        self.cursor.execute('INSERT INTO itens (nome, quantidade, serial_number, caixa_id) VALUES (?, ?, ?, ?)', (self.nome, self.quantidade, self.serial_number, self.caixa_id))
-        self.conexao.commit()
-
-    @staticmethod
-    def listar_todos_itens(caixa_id=None):
-        conexao = sqlite3.connect('sistema_organizacao.db')
-        cursor = conexao.cursor()
+    def listar_itens(self, caixa_id=None):
         if caixa_id:
-            cursor.execute('SELECT * FROM itens WHERE caixa_id = ?', (caixa_id,))
+            return self.listar_todos('SELECT * FROM itens WHERE caixa_id = ?', (caixa_id,))
         else:
-            cursor.execute('SELECT * FROM itens')
-        itens = cursor.fetchall()
-        conexao.close()
-        return itens
-
-    def __del__(self):
-        self.conexao.close()
+            return self.listar_todos('SELECT * FROM itens')

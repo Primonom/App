@@ -1,10 +1,12 @@
-import sqlite3
+import logging
+from database import DatabaseModel
 
-class Usuario:
+# Configuração do logger
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+class Usuario(DatabaseModel):
     def __init__(self):
-        self.conexao = sqlite3.connect('sistema_organizacao.db')
-        self.cursor = self.conexao.cursor()
-        self.criar_tabela()
+        super().__init__()
 
     def criar_tabela(self):
         self.cursor.execute('''
@@ -16,18 +18,17 @@ class Usuario:
         ''')
         self.conexao.commit()
 
-    def verificar_login(self, username, senha):
-        self.cursor.execute('SELECT id FROM usuarios WHERE username = ? AND senha = ?', (username, senha))
-        usuario = self.cursor.fetchone()
-        return usuario[0] if usuario else None
-
     def adicionar_usuario(self, username, senha):
         try:
             self.cursor.execute('INSERT INTO usuarios (username, senha) VALUES (?, ?)', (username, senha))
             self.conexao.commit()
+            return True
         except sqlite3.IntegrityError:
             return False
-        return True
 
-    def __del__(self):
-        self.conexao.close()
+    def verificar_login(self, username, senha):
+        logging.debug(f"Verificando login para username: {username}, senha: {senha}")
+        self.cursor.execute('SELECT id FROM usuarios WHERE username = ? AND senha = ?', (username, senha))
+        usuario = self.cursor.fetchone()
+        logging.debug(f"Resultado da consulta: {usuario}")
+        return usuario[0] if usuario else None
