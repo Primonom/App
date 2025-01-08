@@ -23,9 +23,8 @@ class Caixa:
 
     def listar_caixas_com_setores(self):
         self.cursor.execute('''
-            SELECT caixas.id, caixas.nome, setores.nome
+            SELECT caixas.id, caixas.nome, caixas.setor_id
             FROM caixas
-            JOIN setores ON caixas.setor_id = setores.id
         ''')
         return self.cursor.fetchall()
 

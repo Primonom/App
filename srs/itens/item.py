@@ -40,16 +40,20 @@ class Item:
         conexao.close()
         return itens
 
+    @staticmethod
+    def pesquisar_itens(query):
+        conexao = sqlite3.connect('sistema_organizacao.db')
+        cursor = conexao.cursor()
+        cursor.execute('''
+            SELECT itens.id, itens.nome, itens.quantidade, itens.serial_number, caixas.nome, setores.nome
+            FROM itens
+            JOIN caixas ON itens.caixa_id = caixas.id
+            JOIN setores ON caixas.setor_id = setores.id
+            WHERE itens.nome LIKE ? OR itens.serial_number LIKE ?
+        ''', ('%' + query + '%', '%' + query + '%'))
+        itens = cursor.fetchall()
+        conexao.close()
+        return itens
+
     def __del__(self):
         self.conexao.close()
-
-# Função para recriar a tabela 'itens'
-def recriar_tabela_itens():
-    item = Item()
-    item.excluir_tabela()
-    item.criar_tabela()
-
-# Execute a função para recriar a tabela 'itens' se necessário
-if __name__ == "__main__":
-    recriar_tabela_itens()
-    print("Tabela 'itens' recriada com sucesso.")
