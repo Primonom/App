@@ -27,9 +27,13 @@ class App:
         # Aplicar tema
         self.style = ttk.Style()
         self.style.theme_use('clam')
-        self.style.configure('TButton', font=('Arial', 12), padding=10, background='green', foreground='white')
-        self.style.configure('TLabel', font=('Arial', 12), background='blue', foreground='white')
+        self.style.configure('TButton', font=('Arial', 12), padding=10, background='#4CAF50', foreground='white')
+        self.style.configure('TLabel', font=('Arial', 12), background='lightgrey', foreground='black')
 
+        # Configurações de layout
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        
         # Interface de Login
         self.login_frame = ttk.Frame(self.root)
         self.login_frame.pack(expand=True)
@@ -49,52 +53,45 @@ class App:
         ttk.Button(self.inner_frame, text="Criar nova conta", command=lambda: criar_conta(self)).pack(pady=10)
 
         # Frame do Menu Principal (oculto até o login)
-        self.main_menu_frame = tk.Frame(self.root, bg='blue')
+        self.main_menu_frame = tk.Frame(self.root)
         
-        # Barra lateral esquerda para setores e caixas
-        self.left_bar = tk.Frame(self.main_menu_frame, bg='white', width=200)
-        self.left_bar.pack(side='left', fill='y')
+        self.main_menu_frame.grid_rowconfigure(0, weight=1)
+        self.main_menu_frame.grid_columnconfigure(0, weight=1)
+        self.main_menu_frame.grid_columnconfigure(1, weight=1)
+        self.main_menu_frame.grid_columnconfigure(2, weight=1)
 
-        self.inner_left_bar = ttk.Frame(self.left_bar)
-        self.inner_left_bar.pack(fill='both', expand=True)
+        # Ações principais (lado esquerdo)
+        self.actions_frame = ttk.Frame(self.main_menu_frame)
+        self.actions_frame.grid(row=0, column=0, sticky='nsew', padx=20, pady=20)
 
-        # Área central para mostrar botões das caixas e itens
-        self.central_frame = ttk.Frame(self.main_menu_frame)
-        self.central_frame.pack(side='left', fill='both', expand=True)
+        ttk.Label(self.actions_frame, text="Ações Principais", font=("Arial", 14)).pack(pady=10)
+        ttk.Button(self.actions_frame, text="Adicionar Setor", command=lambda: adicionar_setor(self)).pack(pady=10)
+        ttk.Button(self.actions_frame, text="Adicionar Caixa", command=lambda: adicionar_caixa(self)).pack(pady=10)
+        ttk.Button(self.actions_frame, text="Adicionar Item", command=lambda: adicionar_item(self)).pack(pady=10)
 
-        # Barra de pesquisa na parte superior da tela central
-        self.search_frame = ttk.Frame(self.central_frame)
-        self.search_frame.pack(side='top', fill='x', pady=10)
+        # Visualizações (centro)
+        self.visual_frame = ttk.Frame(self.main_menu_frame)
+        self.visual_frame.grid(row=0, column=1, sticky='nsew', padx=20, pady=20)
 
-        self.search_entry = ttk.Entry(self.search_frame, font=("Arial", 14), width=50)
-        self.search_entry.pack(side='left', padx=10)
+        ttk.Label(self.visual_frame, text="Visualizações", font=("Arial", 14)).pack(pady=10)
+        ttk.Button(self.visual_frame, text="Visualizar Setores", command=lambda: visualizar_setores(self)).pack(pady=10)
+        ttk.Button(self.visual_frame, text="Visualizar Caixas", command=lambda: visualizar_caixas(self)).pack(pady=10)
+        ttk.Button(self.visual_frame, text="Visualizar Itens", command=lambda: visualizar_itens(self)).pack(pady=10)
+        ttk.Button(self.visual_frame, text="Mostrar Histórico", command=lambda: mostrar_historico(self)).pack(pady=10)
 
-        self.search_button = ttk.Button(self.search_frame, text="Pesquisar", command=self.pesquisar_item)
-        self.search_button.pack(side='left', padx=10)
+        # Minha conta (lado direito)
+        self.account_frame = ttk.Frame(self.main_menu_frame)
+        self.account_frame.grid(row=0, column=2, sticky='nsew', padx=20, pady=20)
 
-        # Barra lateral direita para botões de ações
-        self.right_bar = tk.Frame(self.main_menu_frame, bg='white', width=200)
-        self.right_bar.pack(side='right', fill='y')
-
-        self.inner_right_bar = ttk.Frame(self.right_bar)
-        self.inner_right_bar.pack(fill='both', expand=True)
-
-        # Adicionar botões de ações na barra direita
-        ttk.Button(self.inner_right_bar, text="Adicionar Setor", command=lambda: adicionar_setor(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Adicionar Caixa", command=lambda: adicionar_caixa(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Adicionar Item", command=lambda: adicionar_item(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Visualizar Setores", command=lambda: visualizar_setores(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Visualizar Caixas", command=lambda: visualizar_caixas(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Visualizar Itens", command=lambda: visualizar_itens(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Mostrar Histórico", command=lambda: mostrar_historico(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Editar Conta", command=lambda: editar_conta(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Excluir Conta", command=lambda: excluir_conta(self)).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Sair", command=lambda: self.sair()).pack(pady=5)
-        ttk.Button(self.inner_right_bar, text="Voltar", command=lambda: self.voltar()).pack(pady=5)
+        ttk.Label(self.account_frame, text="Minha Conta", font=("Arial", 14)).pack(pady=10)
+        ttk.Button(self.account_frame, text="Editar Conta", command=lambda: editar_conta(self)).pack(pady=10)
+        ttk.Button(self.account_frame, text="Excluir Conta", command=lambda: excluir_conta(self)).pack(pady=10)
+        ttk.Button(self.account_frame, text="Sair", command=lambda: self.sair()).pack(pady=10)
+        ttk.Button(self.account_frame, text="Voltar", command=lambda: self.voltar()).pack(pady=10)
 
     def mostrar_menu_principal(self):
         self.login_frame.pack_forget()
-        self.main_menu_frame.pack(expand=True, fill='both')
+        self.main_menu_frame.grid(row=0, column=0, sticky='nsew')
         self.carregar_setores()
 
     def carregar_setores(self):
@@ -168,12 +165,14 @@ class App:
             previous_view()  # Load the previous view
 
     def sair(self):
-        self.usuario_atual = None
-        self.main_menu_frame.pack_forget()
-        self.login_frame.pack(expand=True)
+        if messagebox.askyesno("Sair", "Tem certeza que deseja sair?"):
+            self.usuario_atual = None
+            self.main_menu_frame.grid_forget()
+            self.login_frame.grid(row=0, column=0, sticky='nsew')
 
 if __name__ == "__main__":
     root = tk.Tk()
     root.state('zoomed')
     app = App(root)
     root.mainloop()
+    
