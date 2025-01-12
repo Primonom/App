@@ -10,7 +10,6 @@ from caixas.adicionar_caixa import adicionar_caixa
 from caixas.visualizar_caixas import visualizar_caixas
 from itens.adicionar_item import adicionar_item
 from itens.visualizar_itens import visualizar_itens
-from log_acoes.mostrar_historico import mostrar_historico
 from log_acoes.log_acoes import LogAcoes
 from setores.setor import Setor
 from caixas.caixa import Caixa
@@ -77,7 +76,6 @@ class App:
         ttk.Button(self.visual_frame, text="Visualizar Setores", command=lambda: visualizar_setores(self)).pack(pady=10)
         ttk.Button(self.visual_frame, text="Visualizar Caixas", command=lambda: visualizar_caixas(self)).pack(pady=10)
         ttk.Button(self.visual_frame, text="Visualizar Itens", command=lambda: visualizar_itens(self)).pack(pady=10)
-        ttk.Button(self.visual_frame, text="Mostrar Histórico", command=lambda: mostrar_historico(self)).pack(pady=10)
 
         # Minha conta (lado direito)
         self.account_frame = ttk.Frame(self.main_menu_frame)
