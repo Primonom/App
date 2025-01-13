@@ -6,10 +6,13 @@ from usuarios.editar_conta import editar_conta
 from usuarios.excluir_conta import excluir_conta
 from setores.adicionar_setor import adicionar_setor
 from setores.visualizar_setores import visualizar_setores
+from setores.excluir_setor import excluir_setor  # Importar a nova função
 from caixas.adicionar_caixa import adicionar_caixa
 from caixas.visualizar_caixas import visualizar_caixas
+from caixas.excluir_caixa import excluir_caixa  # Importar a nova função
 from itens.adicionar_item import adicionar_item
 from itens.visualizar_itens import visualizar_itens
+from itens.remover_item import remover_item  # Importar a nova função
 import tkinter as tk
 from tkinter import messagebox
 
@@ -56,6 +59,9 @@ class App:
             ("Adicionar Setor", lambda: adicionar_setor(self)),
             ("Adicionar Caixa", lambda: adicionar_caixa(self)),
             ("Adicionar Item", lambda: adicionar_item(self)),
+            ("Excluir Setor", lambda: excluir_setor(self)),  # Adicionar botão para excluir setor
+            ("Excluir Caixa", lambda: excluir_caixa(self)),  # Adicionar botão para excluir caixa
+            ("Remover Item", lambda: remover_item(self)),  # Adicionar botão para remover item
         ])
 
         # Visualizações
@@ -78,7 +84,9 @@ class App:
         self.account_frame.grid(row=0, column=2, padx=20, pady=20, sticky='nsew')
 
         self.main_menu_frame.grid_rowconfigure(0, weight=1)
-        self.main_menu_frame.grid_columnconfigure((0, 1, 2), weight=1)
+        self.main_menu_frame.grid_columnconfigure(0, weight=1)  # Coluna esquerda
+        self.main_menu_frame.grid_columnconfigure(1, weight=4)  # Coluna central
+        self.main_menu_frame.grid_columnconfigure(2, weight=1)  # Coluna direita
 
         # Começar no login
         self.mostrar_login()
