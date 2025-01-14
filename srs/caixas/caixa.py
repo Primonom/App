@@ -19,16 +19,26 @@ class Caixa(BaseModel):
         self.__conexao.commit()
 
     def adicionar(self, nome, setor_id):
-        self.__cursor.execute('INSERT INTO caixas (nome, setor_id) VALUES (?, ?)', (nome, setor_id))
-        self.__conexao.commit()
+        try:
+            self.__cursor.execute('INSERT INTO caixas (nome, setor_id) VALUES (?, ?)', (nome, setor_id))
+            self.__conexao.commit()
+            print(f"Caixa adicionada: {nome}, Setor ID: {setor_id}")
+        except Exception as e:
+            print(f"Erro ao adicionar caixa: {e}")
 
     def listar_todos(self):
         self.__cursor.execute('SELECT * FROM caixas')
         return self.__cursor.fetchall()
 
     def listar_caixas_por_setor(self, setor_id):
-        self.__cursor.execute('SELECT * FROM caixas WHERE setor_id = ?', (setor_id,))
-        return self.__cursor.fetchall()
+        try:
+            self.__cursor.execute('SELECT * FROM caixas WHERE setor_id = ?', (setor_id,))
+            caixas = self.__cursor.fetchall()
+            print(f"Caixas listadas para o setor {setor_id}: {caixas}")  # Adicionar mensagem de depuração
+            return caixas
+        except Exception as e:
+            print(f"Erro ao listar caixas por setor: {e}")
+            return []
 
     def excluir(self, caixa_id):
         self.__cursor.execute('DELETE FROM caixas WHERE id = ?', (caixa_id,))

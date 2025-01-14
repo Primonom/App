@@ -4,7 +4,7 @@ from itens.item import Item
 
 def excluir_item(app):
     item = Item()
-    itens = item.listar_todos_itens()
+    itens = item.listar_todos()
     if not itens:
         messagebox.showinfo("Itens", "Nenhum item encontrado.")
         return
@@ -41,7 +41,7 @@ def excluir_item(app):
         item_id = tree.item(selected_item[0])["values"][0]
         resposta = messagebox.askyesno("Confirmar Exclusão", "Tem certeza que deseja excluir este item?")
         if resposta:
-            item.excluir_item(item_id)
+            item.excluir(item_id)
             messagebox.showinfo("Sucesso", "Item excluído com sucesso.")
             quadro_excluir_item.destroy()
 

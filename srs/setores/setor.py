@@ -2,7 +2,7 @@ import sqlite3
 from base_model import BaseModel
 
 class Setor(BaseModel):
-    def __init__(self):
+    def __init__(self, __conexao=None, __cursor=None):
         self.__conexao = sqlite3.connect('sistema_organizacao.db')
         self.__cursor = self.__conexao.cursor()
         self.criar_tabela()

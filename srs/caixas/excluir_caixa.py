@@ -1,10 +1,10 @@
-from tkinter import ttk, messagebox, simpledialog
+from tkinter import ttk, messagebox
 import tkinter as tk
 from caixas.caixa import Caixa
 
 def excluir_caixa(app):
     caixa = Caixa()
-    caixas = caixa.listar_caixas_com_setores()
+    caixas = caixa.listar_todos()
     if not caixas:
         messagebox.showinfo("Caixas", "Nenhuma caixa encontrada.")
         return
@@ -15,19 +15,19 @@ def excluir_caixa(app):
 
     ttk.Label(quadro_excluir_caixa, text="Selecione uma Caixa para Excluir", font=("Arial", 18, "bold")).pack(pady=10)
 
-    colunas = ("ID", "Nome", "Setor")
+    colunas = ("ID", "Nome", "Setor ID")
     tree = ttk.Treeview(quadro_excluir_caixa, columns=colunas, show="headings", height=10)
     tree.pack(fill="both", expand=True, padx=10, pady=10)
 
     tree.heading("ID", text="ID")
     tree.heading("Nome", text="Nome")
-    tree.heading("Setor", text="Setor")
+    tree.heading("Setor ID", text="Setor ID")
     tree.column("ID", width=50, anchor="center")
     tree.column("Nome", width=150, anchor="center")
-    tree.column("Setor", width=150, anchor="center")
+    tree.column("Setor ID", width=100, anchor="center")
 
-    for caixa in caixas:
-        tree.insert("", "end", values=(caixa[0], caixa[1], caixa[2]))
+    for caixa_data in caixas:
+        tree.insert("", "end", values=(caixa_data[0], caixa_data[1], caixa_data[2]))
 
     def confirmar_exclusao():
         selected_item = tree.selection()
@@ -37,7 +37,7 @@ def excluir_caixa(app):
         caixa_id = tree.item(selected_item[0])["values"][0]
         resposta = messagebox.askyesno("Confirmar Exclusão", "Tem certeza que deseja excluir esta caixa?")
         if resposta:
-            caixa.excluir_caixa(caixa_id)
+            caixa.excluir(caixa_id)
             messagebox.showinfo("Sucesso", "Caixa excluída com sucesso.")
             quadro_excluir_caixa.destroy()
 
