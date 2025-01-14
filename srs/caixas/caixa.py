@@ -21,10 +21,15 @@ class Caixa:
         self.cursor.execute('INSERT INTO caixas (nome, setor_id) VALUES (?, ?)', (nome, setor_id))
         self.conexao.commit()
 
+    def listar_caixas_por_setor(self, setor_id):
+        self.cursor.execute('SELECT * FROM caixas WHERE setor_id = ?', (setor_id,))
+        return self.cursor.fetchall()
+
     def listar_caixas_com_setores(self):
         self.cursor.execute('''
-            SELECT caixas.id, caixas.nome, caixas.setor_id
+            SELECT caixas.id, caixas.nome, setores.nome
             FROM caixas
+            JOIN setores ON caixas.setor_id = setores.id
         ''')
         return self.cursor.fetchall()
 

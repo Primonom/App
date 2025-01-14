@@ -13,7 +13,7 @@ def visualizar_caixas(app):
     quadro_caixas.title("Caixas Existentes")
     quadro_caixas.geometry("500x400")
 
-    ttk.Label(quadro_caixas, text="Caixas Criadas", font=("Arial", 14, "bold")).pack(pady=10)
+    ttk.Label(quadro_caixas, text="Caixas Criadas", font=("Arial", 18, "bold")).pack(pady=10)
 
     colunas = ("ID", "Nome", "Setor")
     tree = ttk.Treeview(quadro_caixas, columns=colunas, show="headings", height=10)

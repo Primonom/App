@@ -13,6 +13,9 @@ from caixas.excluir_caixa import excluir_caixa  # Importar a nova função
 from itens.adicionar_item import adicionar_item
 from itens.visualizar_itens import visualizar_itens
 from itens.remover_item import remover_item  # Importar a nova função
+from setores.setor import Setor
+from caixas.caixa import Caixa
+from itens.item import Item
 import tkinter as tk
 from tkinter import messagebox
 
@@ -66,9 +69,7 @@ class App:
 
         # Visualizações
         self.visual_frame = self.create_section(self.main_menu_frame, "Visualizações", [
-            ("Visualizar Setores", lambda: visualizar_setores(self)),
-            ("Visualizar Caixas", lambda: visualizar_caixas(self)),
-            ("Visualizar Itens", lambda: visualizar_itens(self)),
+            ("Visualizar Setores", lambda: self.mostrar_setores()),
         ])
 
         # Minha conta
@@ -88,8 +89,19 @@ class App:
         self.main_menu_frame.grid_columnconfigure(1, weight=4)  # Coluna central
         self.main_menu_frame.grid_columnconfigure(2, weight=1)  # Coluna direita
 
+        # Frame central para exibir setores, caixas e itens
+        self.central_frame = ttk.Frame(self.main_menu_frame)
+        self.central_frame.grid(row=0, column=1, padx=20, pady=20, sticky='nsew')
+
+        # Botão Voltar
+        self.back_button = ttk.Button(self.main_menu_frame, text="Voltar", command=self.voltar)
+        self.back_button.grid(row=1, column=2, padx=20, pady=20, sticky='sew')
+
         # Começar no login
         self.mostrar_login()
+
+        # Exibir setores automaticamente ao iniciar
+        self.mostrar_setores()
 
     def create_section(self, parent, title, buttons, danger=False):
         frame = ttk.Frame(parent, padding=20, bootstyle="secondary")
@@ -115,6 +127,51 @@ class App:
         """Exibe o menu principal e esconde a tela de login."""
         self.login_frame.grid_forget()
         self.main_menu_frame.grid(row=0, column=0, sticky="nsew")
+
+    def mostrar_setores(self):
+        """Exibe os setores na coluna central."""
+        self.history.append(self.mostrar_setores)
+        for widget in self.central_frame.winfo_children():
+            widget.destroy()
+
+        setores = Setor().listar_setores()
+        if setores:
+            for setor in setores:
+                ttk.Button(self.central_frame, text=setor[1], command=lambda s=setor: self.mostrar_caixas(s[0])).pack(pady=10, ipadx=10, ipady=5, fill='x')
+        else:
+            ttk.Label(self.central_frame, text="Nenhum setor encontrado.", font=("Arial", 14)).pack(pady=20)
+
+    def mostrar_caixas(self, setor_id):
+        """Exibe as caixas de um setor na coluna central."""
+        self.history.append(lambda: self.mostrar_caixas(setor_id))
+        for widget in self.central_frame.winfo_children():
+            widget.destroy()
+
+        caixas = Caixa().listar_caixas_por_setor(setor_id)
+        if caixas:
+            for caixa in caixas:
+                ttk.Button(self.central_frame, text=caixa[1], command=lambda c=caixa: self.mostrar_itens(c[0])).pack(pady=10, ipadx=10, ipady=5, fill='x')
+        else:
+            ttk.Label(self.central_frame, text="Nenhuma caixa encontrada.", font=("Arial", 14)).pack(pady=20)
+
+    def mostrar_itens(self, caixa_id):
+        """Exibe os itens de uma caixa na coluna central."""
+        self.history.append(lambda: self.mostrar_itens(caixa_id))
+        for widget in self.central_frame.winfo_children():
+            widget.destroy()
+
+        itens = Item().listar_itens_por_caixa(caixa_id)
+        if itens:
+            for item in itens:
+                ttk.Label(self.central_frame, text=f"{item[1]} (Quantidade: {item[2]})", font=("Arial", 14)).pack(pady=5)
+        else:
+            ttk.Label(self.central_frame, text="Nenhum item encontrado.", font=("Arial", 14)).pack(pady=20)
+
+    def voltar(self):
+        """Volta para a página anterior na pilha de navegação."""
+        if len(self.history) > 1:
+            self.history.pop()  # Remove a página atual
+            self.history.pop()()  # Remove e chama a página anterior
 
     def sair(self):
         if messagebox.askyesno("Sair", "Tem certeza que deseja sair?"):
