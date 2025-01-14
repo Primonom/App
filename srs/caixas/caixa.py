@@ -33,5 +33,9 @@ class Caixa:
         ''')
         return self.cursor.fetchall()
 
+    def excluir_caixa(self, caixa_id):
+        self.cursor.execute('DELETE FROM caixas WHERE id = ?', (caixa_id,))
+        self.conexao.commit()
+
     def __del__(self):
         self.conexao.close()

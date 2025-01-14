@@ -12,7 +12,7 @@ from caixas.visualizar_caixas import visualizar_caixas
 from caixas.excluir_caixa import excluir_caixa  # Importar a nova função
 from itens.adicionar_item import adicionar_item
 from itens.visualizar_itens import visualizar_itens
-from itens.remover_item import remover_item  # Importar a nova função
+from itens.excluir_item import excluir_item  # Importar a nova função
 from setores.setor import Setor
 from caixas.caixa import Caixa
 from itens.item import Item
@@ -64,7 +64,7 @@ class App:
             ("Adicionar Item", lambda: adicionar_item(self)),
             ("Excluir Setor", lambda: excluir_setor(self)),  # Adicionar botão para excluir setor
             ("Excluir Caixa", lambda: excluir_caixa(self)),  # Adicionar botão para excluir caixa
-            ("Remover Item", lambda: remover_item(self)),  # Adicionar botão para remover item
+            ("Excluir Item", lambda: excluir_item(self)),  # Adicionar botão para excluir item
         ])
 
         # Visualizações
@@ -137,7 +137,9 @@ class App:
         setores = Setor().listar_setores()
         if setores:
             for setor in setores:
-                ttk.Button(self.central_frame, text=setor[1], command=lambda s=setor: self.mostrar_caixas(s[0])).pack(pady=10, ipadx=10, ipady=5, fill='x')
+                button = ttk.Button(self.central_frame, text=setor[1], command=lambda s=setor: self.mostrar_caixas(s[0]))
+                button.pack(pady=10, ipadx=10, ipady=5, fill='x')
+                button.configure(style="TButton")
         else:
             ttk.Label(self.central_frame, text="Nenhum setor encontrado.", font=("Arial", 14)).pack(pady=20)
 
@@ -150,7 +152,9 @@ class App:
         caixas = Caixa().listar_caixas_por_setor(setor_id)
         if caixas:
             for caixa in caixas:
-                ttk.Button(self.central_frame, text=caixa[1], command=lambda c=caixa: self.mostrar_itens(c[0])).pack(pady=10, ipadx=10, ipady=5, fill='x')
+                button = ttk.Button(self.central_frame, text=caixa[1], command=lambda c=caixa: self.mostrar_itens(c[0]))
+                button.pack(pady=10, ipadx=10, ipady=5, fill='x')
+                button.configure(style="TButton", font=("Arial", 14))
         else:
             ttk.Label(self.central_frame, text="Nenhuma caixa encontrada.", font=("Arial", 14)).pack(pady=20)
 
@@ -163,7 +167,7 @@ class App:
         itens = Item().listar_itens_por_caixa(caixa_id)
         if itens:
             for item in itens:
-                ttk.Label(self.central_frame, text=f"{item[1]} (Quantidade: {item[2]})", font=("Arial", 14)).pack(pady=5)
+                ttk.Label(self.central_frame, text=f"{item[1]} (Quantidade: {item[2]})", font=("Arial", 12)).pack(pady=5)
         else:
             ttk.Label(self.central_frame, text="Nenhum item encontrado.", font=("Arial", 14)).pack(pady=20)
 

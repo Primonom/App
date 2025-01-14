@@ -23,5 +23,9 @@ class Setor:
         self.cursor.execute('SELECT * FROM setores')
         return self.cursor.fetchall()
 
+    def excluir_setor(self, setor_id):
+        self.cursor.execute('DELETE FROM setores WHERE id = ?', (setor_id,))
+        self.conexao.commit()
+
     def __del__(self):
         self.conexao.close()
