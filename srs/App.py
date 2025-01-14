@@ -134,7 +134,7 @@ class App:
         for widget in self.central_frame.winfo_children():
             widget.destroy()
 
-        setores = Setor().listar_setores()
+        setores = Setor().listar_todos()
         if setores:
             for setor in setores:
                 button = ttk.Button(self.central_frame, text=setor[1], command=lambda s=setor: self.mostrar_caixas(s[0]))
