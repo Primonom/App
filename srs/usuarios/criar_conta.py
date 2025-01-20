@@ -1,42 +1,32 @@
-from tkinter import ttk, messagebox
+from tkinter import simpledialog, messagebox
+from ttkbootstrap import ttk
 from usuarios.usuario import Usuario
 
 def criar_conta(app):
-    app.login_frame.pack_forget()
-
+    # Criar um novo frame para a criação de conta
     app.criar_conta_frame = ttk.Frame(app.root)
-    app.criar_conta_frame.pack(expand=True, fill="both")
+    app.criar_conta_frame.grid(row=0, column=0, sticky="nsew")
 
-    app.inner_frame_criar_conta = ttk.Frame(app.criar_conta_frame)
-    app.inner_frame_criar_conta.place(relx=0.5, rely=0.5, anchor="center")
+    # Adicionar widgets ao frame de criação de conta
+    ttk.Label(app.criar_conta_frame, text="Criar Nova Conta", font=("Arial", 24, "bold")).grid(row=0, column=0, columnspan=2, pady=20)
+    ttk.Label(app.criar_conta_frame, text="Username", font=("Arial", 14)).grid(row=1, column=0, pady=5, padx=5, sticky="e")
+    username_entry = ttk.Entry(app.criar_conta_frame, font=("Arial", 14), width=30)
+    username_entry.grid(row=1, column=1, pady=5, padx=5)
 
-    ttk.Label(app.inner_frame_criar_conta, text="Novo Usuário", font=("Arial", 14)).pack(pady=10)
+    ttk.Label(app.criar_conta_frame, text="Senha", font=("Arial", 14)).grid(row=2, column=0, pady=5, padx=5, sticky="e")
+    senha_entry = ttk.Entry(app.criar_conta_frame, show="*", font=("Arial", 14), width=30)
+    senha_entry.grid(row=2, column=1, pady=5, padx=5)
 
-    app.novo_username_entry = ttk.Entry(app.inner_frame_criar_conta, font=("Arial", 14), width=30)
-    app.novo_username_entry.pack(pady=10)
-
-    ttk.Label(app.inner_frame_criar_conta, text="Nova Senha", font=("Arial", 14)).pack(pady=10)
-    app.nova_senha_entry = ttk.Entry(app.inner_frame_criar_conta, show="*", font=("Arial", 14), width=30)
-    app.nova_senha_entry.pack(pady=10)
-
-    ttk.Button(app.inner_frame_criar_conta, text="Criar Conta", command=lambda: salvar_novo_usuario(app)).pack(pady=10)
-    ttk.Button(app.inner_frame_criar_conta, text="Voltar", command=lambda: voltar_para_login(app)).pack(pady=10)
-
-def salvar_novo_usuario(app):
-    novo_username = app.novo_username_entry.get()
-    nova_senha = app.nova_senha_entry.get()
-
-    if novo_username and nova_senha:
-        usuario = Usuario()
-        if usuario.adicionar_usuario(novo_username, nova_senha):
-            messagebox.showinfo("Sucesso", "Conta criada com sucesso!")
-            app.login_frame.pack(expand=True)
-            app.criar_conta_frame.pack_forget()
+    def salvar_conta():
+        username = username_entry.get()
+        senha = senha_entry.get()
+        if username and senha:
+            usuario = Usuario()
+            usuario.criar(username, senha)
+            messagebox.showinfo("Sucesso", "Conta criada com sucesso.")
+            app.mostrar_login()  # Voltar para a tela de login após criar a conta
         else:
-            messagebox.showerror("Erro", "O nome de usuário já existe.")
-    else:
-        messagebox.showerror("Erro", "Preencha todos os campos.")
+            messagebox.showerror("Erro", "Todos os campos são obrigatórios.")
 
-def voltar_para_login(app):
-    app.criar_conta_frame.pack_forget()
-    app.login_frame.pack(expand=True)
+    ttk.Button(app.criar_conta_frame, text="Salvar", command=salvar_conta, style="primary.TButton").grid(row=3, column=0, columnspan=2, pady=20, ipadx=10, ipady=5)
+    ttk.Button(app.criar_conta_frame, text="Voltar", command=app.mostrar_login, style="secondary.TButton").grid(row=4, column=0, columnspan=2, pady=10, ipadx=10, ipady=5)

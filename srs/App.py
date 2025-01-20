@@ -122,6 +122,8 @@ class App:
         """Exibe a tela de login e esconde o menu principal."""
         self.main_menu_frame.grid_forget()
         self.login_frame.grid(row=0, column=0, sticky="nsew")
+        if hasattr(self, 'criar_conta_frame'):
+            self.criar_conta_frame.grid_forget()
 
     def mostrar_menu_principal(self):
         """Exibe o menu principal e esconde a tela de login."""
