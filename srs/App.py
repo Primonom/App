@@ -6,26 +6,24 @@ from usuarios.editar_conta import editar_conta
 from usuarios.excluir_conta import excluir_conta
 from setores.adicionar_setor import adicionar_setor
 from setores.visualizar_setores import visualizar_setores
-from setores.excluir_setor import excluir_setor  # Importar a nova função
+from setores.excluir_setor import excluir_setor
 from caixas.adicionar_caixa import adicionar_caixa
 from caixas.visualizar_caixas import visualizar_caixas
-from caixas.excluir_caixa import excluir_caixa  # Importar a nova função
+from caixas.excluir_caixa import excluir_caixa
 from itens.adicionar_item import adicionar_item
 from itens.visualizar_itens import visualizar_itens
-from itens.excluir_item import excluir_item  # Importar a nova função
-from setores.setor import Setor
-from caixas.caixa import Caixa
-from itens.item import Item
+from itens.excluir_item import excluir_item
+from utils.navigation import Navigation
+from utils.layout import create_section
 import tkinter as tk
 from tkinter import messagebox
 
 
-class App:
+class App(Navigation):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         self.root.title("App de Organização de Materiais - Milhagem")
         self.usuario_atual = None  # Armazena o usuário logado
-        self.history = []  # Histórico de navegação
 
         # Aplicar tema com ttkbootstrap
         self.style = Style(theme="superhero")  # Escolha um tema moderno
@@ -58,22 +56,22 @@ class App:
         self.main_menu_frame.grid(row=0, column=0, sticky='nsew')
 
         # Ações principais
-        self.actions_frame = self.create_section(self.main_menu_frame, "Ações Principais", [
+        self.actions_frame = create_section(self.main_menu_frame, "Ações Principais", [
             ("Adicionar Setor", lambda: adicionar_setor(self)),
             ("Adicionar Caixa", lambda: adicionar_caixa(self)),
             ("Adicionar Item", lambda: adicionar_item(self)),
-            ("Excluir Setor", lambda: excluir_setor(self)),  # Adicionar botão para excluir setor
-            ("Excluir Caixa", lambda: excluir_caixa(self)),  # Adicionar botão para excluir caixa
-            ("Excluir Item", lambda: excluir_item(self)),  # Adicionar botão para excluir item
+            ("Excluir Setor", lambda: excluir_setor(self)),
+            ("Excluir Caixa", lambda: excluir_caixa(self)),
+            ("Excluir Item", lambda: excluir_item(self)),
         ])
 
         # Visualizações
-        self.visual_frame = self.create_section(self.main_menu_frame, "Visualizações", [
+        self.visual_frame = create_section(self.main_menu_frame, "Visualizações", [
             ("Visualizar Setores", lambda: self.mostrar_setores()),
         ])
 
         # Minha conta
-        self.account_frame = self.create_section(self.main_menu_frame, "Minha Conta", [
+        self.account_frame = create_section(self.main_menu_frame, "Minha Conta", [
             ("Editar Conta", lambda: editar_conta(self)),
             ("Excluir Conta", lambda: excluir_conta(self)),
             ("Sair", lambda: self.sair()),
@@ -102,95 +100,6 @@ class App:
 
         # Exibir setores automaticamente ao iniciar
         self.mostrar_setores()
-
-    def create_section(self, parent, title, buttons, danger=False):
-        frame = ttk.Frame(parent, padding=20, bootstyle="secondary")
-        frame.pack_propagate(False)
-        frame.grid_propagate(False)
-
-        # Título da seção
-        ttk.Label(frame, text=title, font=("Arial", 16, "bold"), anchor="center").pack(pady=10)
-
-        # Adicionar botões
-        for text, command in buttons:
-            style = "danger.TButton" if danger else "success.Outline.TButton"
-            ttk.Button(frame, text=text, command=command, style=style).pack(pady=10, ipadx=10, ipady=5, fill='x')
-
-        return frame
-
-    def mostrar_login(self):
-        """Exibe a tela de login e esconde o menu principal."""
-        self.main_menu_frame.grid_forget()
-        self.login_frame.grid(row=0, column=0, sticky="nsew")
-        if hasattr(self, 'criar_conta_frame'):
-            self.criar_conta_frame.grid_forget()
-        if hasattr(self, 'adicionar_item_frame'):
-            self.adicionar_item_frame.grid_forget()
-        if hasattr(self, 'excluir_setor_frame'):
-            self.excluir_setor_frame.grid_forget()
-
-    def mostrar_menu_principal(self):
-        """Exibe o menu principal e esconde a tela de login."""
-        self.login_frame.grid_forget()
-        self.main_menu_frame.grid(row=0, column=0, sticky="nsew")
-        if hasattr(self, 'adicionar_item_frame'):
-            self.adicionar_item_frame.grid_forget()
-        if hasattr(self, 'excluir_setor_frame'):
-            self.excluir_setor_frame.grid_forget()
-
-    def mostrar_setores(self):
-        """Exibe os setores na coluna central."""
-        self.history.append(self.mostrar_setores)
-        for widget in self.central_frame.winfo_children():
-            widget.destroy()
-
-        setores = Setor().listar_todos()
-        if setores:
-            for setor in setores:
-                button = ttk.Button(self.central_frame, text=setor[1], command=lambda s=setor: self.mostrar_caixas(s[0]), style="TButton")
-                button.pack(pady=10, ipadx=10, ipady=5, fill='x')
-        else:
-            ttk.Label(self.central_frame, text="Nenhum setor encontrado.", font=("Arial", 14)).pack(pady=20)
-
-    def mostrar_caixas(self, setor_id):
-        """Exibe as caixas de um setor na coluna central."""
-        self.history.append(lambda: self.mostrar_caixas(setor_id))
-        for widget in self.central_frame.winfo_children():
-            widget.destroy()
-
-        caixas = Caixa().listar_caixas_por_setor(setor_id)
-        print(f"Caixas encontradas para o setor {setor_id}: {caixas}")  # Adicionar mensagem de depuração
-        if caixas:
-            for caixa in caixas:
-                button = ttk.Button(self.central_frame, text=caixa[1], command=lambda c=caixa: self.mostrar_itens(c[0]), style="TButton")
-                button.pack(pady=10, ipadx=10, ipady=5, fill='x')
-        else:
-            ttk.Label(self.central_frame, text="Nenhuma caixa encontrada.", font=("Arial", 14)).pack(pady=20)
-
-    def mostrar_itens(self, caixa_id):
-        """Exibe os itens de uma caixa na coluna central."""
-        self.history.append(lambda: self.mostrar_itens(caixa_id))
-        for widget in self.central_frame.winfo_children():
-            widget.destroy()
-
-        itens = Item().listar_itens_por_caixa(caixa_id)
-        print(f"Itens encontrados para a caixa {caixa_id}: {itens}")  # Adicionar mensagem de depuração
-        if itens:
-            for item in itens:
-                ttk.Label(self.central_frame, text=f"{item[1]} (Quantidade: {item[2]}, Número de Série: {item[3]})").pack(pady=5)
-        else:
-            ttk.Label(self.central_frame, text="Nenhum item encontrado.", font=("Arial", 14)).pack(pady=20)
-
-    def voltar(self):
-        """Volta para a página anterior na pilha de navegação."""
-        if len(self.history) > 1:
-            self.history.pop()  # Remove a página atual
-            self.history.pop()()  # Remove e chama a página anterior
-
-    def sair(self):
-        if messagebox.askyesno("Sair", "Tem certeza que deseja sair?"):
-            self.usuario_atual = None
-            self.mostrar_login()
 
 
 if __name__ == "__main__":
