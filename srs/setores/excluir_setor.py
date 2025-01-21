@@ -4,7 +4,7 @@ from setores.setor import Setor
 
 def excluir_setor(app):
     setor = Setor()
-    setores = setor.listar_setores()
+    setores = setor.listar_todos()
     if not setores:
         messagebox.showinfo("Setores", "Nenhum setor encontrado.")
         return
@@ -35,7 +35,7 @@ def excluir_setor(app):
         setor_id = tree.item(selected_item[0])["values"][0]
         resposta = messagebox.askyesno("Confirmar Exclusão", "Tem certeza que deseja excluir este setor?")
         if resposta:
-            setor.excluir_setor(setor_id)
+            setor.excluir(setor_id)
             messagebox.showinfo("Sucesso", "Setor excluído com sucesso.")
             quadro_excluir_setor.destroy()
 

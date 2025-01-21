@@ -124,11 +124,19 @@ class App:
         self.login_frame.grid(row=0, column=0, sticky="nsew")
         if hasattr(self, 'criar_conta_frame'):
             self.criar_conta_frame.grid_forget()
+        if hasattr(self, 'adicionar_item_frame'):
+            self.adicionar_item_frame.grid_forget()
+        if hasattr(self, 'excluir_setor_frame'):
+            self.excluir_setor_frame.grid_forget()
 
     def mostrar_menu_principal(self):
         """Exibe o menu principal e esconde a tela de login."""
         self.login_frame.grid_forget()
         self.main_menu_frame.grid(row=0, column=0, sticky="nsew")
+        if hasattr(self, 'adicionar_item_frame'):
+            self.adicionar_item_frame.grid_forget()
+        if hasattr(self, 'excluir_setor_frame'):
+            self.excluir_setor_frame.grid_forget()
 
     def mostrar_setores(self):
         """Exibe os setores na coluna central."""
@@ -166,9 +174,10 @@ class App:
             widget.destroy()
 
         itens = Item().listar_itens_por_caixa(caixa_id)
+        print(f"Itens encontrados para a caixa {caixa_id}: {itens}")  # Adicionar mensagem de depuração
         if itens:
             for item in itens:
-                ttk.Label(self.central_frame, text=f"{item[1]} (Quantidade: {item[2]})").pack(pady=5)
+                ttk.Label(self.central_frame, text=f"{item[1]} (Quantidade: {item[2]}, Número de Série: {item[3]})").pack(pady=5)
         else:
             ttk.Label(self.central_frame, text="Nenhum item encontrado.", font=("Arial", 14)).pack(pady=20)
 
